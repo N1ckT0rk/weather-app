@@ -129,9 +129,9 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Rain Layout -->
+    <!-- Sport Data Layout -->
     <LinearLayout
-        android:id="@+id/rainLayout"
+        android:id="@+id/sportLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -141,31 +141,100 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageView
-            android:id="@+id/rainIcon"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/ic_rain"
-            android:contentDescription="Rain icon" />
-
-        <TextView
-            android:id="@+id/rainText"
+        <!-- Cycling -->
+        <LinearLayout
+            android:id="@+id/cyclingLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:textColor="@android:color/black"
-            android:textSize="16sp" />
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:visibility="gone"
+            android:layout_marginEnd="16dp">
+
+            <ImageView
+                android:id="@+id/cyclingIcon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_cycling"
+                android:contentDescription="Cycling"
+                android:background="@drawable/sport_icon_background"
+                android:padding="4dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cycling"
+                android:textSize="12sp"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <!-- Paragliding -->
+        <LinearLayout
+            android:id="@+id/paraglidingLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:visibility="gone"
+            android:layout_marginEnd="16dp">
+
+            <ImageView
+                android:id="@+id/paraglidingIcon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_paragliding"
+                android:contentDescription="Paragliding"
+                android:background="@drawable/sport_icon_background"
+                android:padding="4dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Paragliding"
+                android:textSize="12sp"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <!-- Surfing -->
+        <LinearLayout
+            android:id="@+id/surfingLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/surfingIcon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_surfing"
+                android:contentDescription="Surfing"
+                android:background="@drawable/sport_icon_background"
+                android:padding="4dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Surfing"
+                android:textSize="12sp"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
     </LinearLayout>
 
+
     <!-- Bottom Navigation -->
-<!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
-<!--        android:id="@+id/bottomNav"-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:background="@color/navBackground"-->
-<!--        app:menu="@menu/bottom_nav_menu"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent" />-->
+    <!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
+    <!--        android:id="@+id/bottomNav"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:background="@color/navBackground"-->
+    <!--        app:menu="@menu/bottom_nav_menu"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
