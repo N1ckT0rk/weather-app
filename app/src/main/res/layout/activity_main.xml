@@ -18,10 +18,17 @@
         android:textStyle="bold"
         android:textColor="@android:color/white" />
 
+    <fragment
+        android:id="@+id/autocompleteFragment"
+        android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+        android:layout_below="@id/appTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <!-- Location Name -->
     <TextView
         android:id="@+id/locationName"
-        android:layout_below="@id/appTitle"
+        android:layout_below="@id/autocompleteFragment"
         android:layout_marginTop="16dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

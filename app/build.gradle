@@ -2,8 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
-import java.util.Properties
-import java.io.FileInputStream
 
 // Function to read properties from local.properties file at project root
 def getLocalProperty(String key) {
@@ -17,6 +15,8 @@ def getLocalProperty(String key) {
 
 // Read API key from local.properties
 def weatherApiKey = getLocalProperty("weatherApiKey")
+
+def placesApiKey = getLocalProperty("placesApiKey")
 
 android {
     namespace 'com.example.weatherapp'
@@ -36,6 +36,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField "String", "WEATHER_API_KEY", "\"${weatherApiKey}\""
+        buildConfigField "String", "PLACES_API_KEY", "\"${placesApiKey}\""
     }
 
     buildFeatures {
@@ -77,6 +78,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
     androidTestImplementation 'androidx.test:rules:1.5.0'
     testImplementation 'org.robolectric:robolectric:4.10.3'
+    implementation 'com.google.android.libraries.places:places:3.5.0'
+
 
 }
 

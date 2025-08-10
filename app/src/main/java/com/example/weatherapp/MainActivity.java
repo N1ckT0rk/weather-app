@@ -4,11 +4,18 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.bumptech.glide.Glide;
 import com.example.weatherapp.api.WeatherApi;
 import com.example.weatherapp.model.WeatherResponse;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.android.gms.common.api.Status;
+import java.util.Arrays;
+import com.example.weatherapp.utils.LocationUtils;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -16,12 +23,15 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+
 public class MainActivity extends AppCompatActivity {
 
     private TextView locationName, temperature, windSpeed, windGust, windDirection;
     private ImageView weatherIcon, windDirectionArrow;
 
     private WeatherApi api;
+
+    public LocationUtils locationUtils;
 
     public void setApi(WeatherApi api) {
         this.api = api;
@@ -32,7 +42,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("API Key Check", "API key from BuildConfig: '" + BuildConfig.WEATHER_API_KEY + "'");
         Log.d("API Key Check", "API key length: " + BuildConfig.WEATHER_API_KEY.length());
-
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), BuildConfig.PLACES_API_KEY);
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -44,6 +56,40 @@ public class MainActivity extends AppCompatActivity {
         windDirection = findViewById(R.id.windDirection);
         windDirectionArrow = findViewById(R.id.windDirectionArrow);
 
+        AutocompleteSupportFragment autocompleteFragment =
+                (AutocompleteSupportFragment) getSupportFragmentManager()
+                        .findFragmentById(R.id.autocompleteFragment);
+
+        autocompleteFragment.setPlaceFields(Arrays.asList(
+                Place.Field.ID,
+                Place.Field.NAME,
+                Place.Field.LAT_LNG,
+                Place.Field.ADDRESS_COMPONENTS
+
+        ));
+
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(@NonNull Place place) {
+                String location = locationUtils.buildLocationString(place);
+                if (!location.isEmpty()) {
+                    fetchWeather(location);
+                } else {
+                    // fallback if no address components, use place name
+                    String placeName = place.getName();
+                    if (placeName != null && !placeName.isEmpty()) {
+                        fetchWeather(placeName);
+                    }
+                }
+            }
+
+            @Override
+            public void onError(@NonNull Status status) {
+                Log.e("Places", "Error: " + status);
+            }
+        });
+
+
         // Setup Retrofit
         if (api == null) {
             Retrofit retrofit = new Retrofit.Builder()
@@ -53,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
 
             api = retrofit.create(WeatherApi.class);
         }
-
         // Fetch weather data for Tynemouth
         fetchWeather("Tynemouth");
     }
