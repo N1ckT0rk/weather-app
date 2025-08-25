@@ -52,12 +52,12 @@ public class MainActivityTest {
         location.country = "UK";
 
         WeatherResponse.Current current = response.new Current();
-        current.temp_c = 17.2;
+        current.temp_c = 17;
         current.wind_mph = 10.5;
         current.gust_mph = 18.4;
         current.wind_dir = "NE";
 
-        WeatherResponse.Current.Condition condition = current.new Condition();
+        WeatherResponse.Condition condition = response.new Condition();
         condition.text = "Sunny";
         condition.icon = "//cdn.weatherapi.com/weather/64x64/day/113.png";
 
@@ -66,7 +66,7 @@ public class MainActivityTest {
         response.current = current;
 
         // Mock API behavior
-        when(mockApi.getCurrentWeather(any(), any())).thenReturn(mockCall);
+        when(mockApi.getForecast(any(), any())).thenReturn(mockCall);
         doAnswer(invocation -> {
             Callback<WeatherResponse> callback = invocation.getArgument(0);
             callback.onResponse(mockCall, Response.success(response));
@@ -78,9 +78,9 @@ public class MainActivityTest {
 
         // Validate UI updates
         assertEquals("Tynemouth, Tyne & Wear", ((TextView) activity.findViewById(R.id.locationName)).getText().toString());
-        assertEquals("17.2°C", ((TextView) activity.findViewById(R.id.temperature)).getText().toString());
+        assertEquals("17°", ((TextView) activity.findViewById(R.id.temperature)).getText().toString());
         assertEquals("Wind Speed: 11 mph", ((TextView) activity.findViewById(R.id.windSpeed)).getText().toString());
-        assertEquals("Wind Gust: 18 mph", ((TextView) activity.findViewById(R.id.windGust)).getText().toString());
-        assertEquals("Wind Direction: NE", ((TextView) activity.findViewById(R.id.windDirection)).getText().toString());
+//        assertEquals("Wind Gust: 18 mph", ((TextView) activity.findViewById(R.id.windGust)).getText().toString());
+//        assertEquals("Wind Direction: NE", ((TextView) activity.findViewById(R.id.windDirection)).getText().toString());
     }
 }

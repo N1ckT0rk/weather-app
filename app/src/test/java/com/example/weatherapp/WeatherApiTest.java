@@ -37,7 +37,7 @@ public class WeatherApiTest {
     }
 
     @Test
-    public void testGetCurrentWeather() throws Exception {
+    public void testGetForecast() throws Exception {
         String mockJson = "{\n" +
                 "  \"location\": {\n" +
                 "    \"name\": \"Tynemouth\",\n" +
@@ -60,7 +60,7 @@ public class WeatherApiTest {
                 .setResponseCode(200)
                 .setBody(mockJson));
 
-        WeatherResponse response = api.getCurrentWeather("fakeKey", "Tynemouth").execute().body();
+        WeatherResponse response = api.getForecast("fakeKey", "Tynemouth").execute().body();
 
         assertNotNull(response);
         assertEquals("Tynemouth", response.location.name);

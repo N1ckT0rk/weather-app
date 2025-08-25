@@ -4,18 +4,27 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
+import com.example.weatherapp.adapters.DayAdapter;
+import com.example.weatherapp.adapters.HourlyAdapter;
 import com.example.weatherapp.api.WeatherApi;
 import com.example.weatherapp.model.WeatherResponse;
+import com.example.weatherapp.utils.DateFormatter;
+import com.example.weatherapp.utils.LocationUtils;
+import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
-import com.google.android.gms.common.api.Status;
+
 import java.util.Arrays;
-import com.example.weatherapp.utils.LocationUtils;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -26,10 +35,15 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView locationName, temperature, windSpeed, windGust, windDirection;
+    private TextView locationName, temperature, feelsLikeTemperature, windSpeed, hourTime,
+            windGust,
+            windDirection;
     private ImageView weatherIcon, windDirectionArrow;
 
     private WeatherApi api;
+    private RecyclerView recyclerHourlyView;
+    private RecyclerView recyclerDayView;
+
 
     public LocationUtils locationUtils;
 
@@ -46,15 +60,28 @@ public class MainActivity extends AppCompatActivity {
             Places.initialize(getApplicationContext(), BuildConfig.PLACES_API_KEY);
         }
         super.onCreate(savedInstanceState);
+        Log.d("MainActivity", "Setting Content VIew");
         setContentView(R.layout.activity_main);
+        Log.d("MainActivity", "Content set");
 
         locationName = findViewById(R.id.locationName);
         temperature = findViewById(R.id.temperature);
+        feelsLikeTemperature = findViewById(R.id.feelsLikeTemperature);
         weatherIcon = findViewById(R.id.weatherIcon);
         windSpeed = findViewById(R.id.windSpeed);
-        windGust = findViewById(R.id.windGust);
-        windDirection = findViewById(R.id.windDirection);
+//        windGust = findViewById(R.id.windGust);
+//        windDirection = findViewById(R.id.windDirection);
         windDirectionArrow = findViewById(R.id.windDirectionArrow);
+//        hourTime = findViewById(R.id.hourTime);
+        recyclerHourlyView = findViewById(R.id.recyclerHourly);
+        recyclerHourlyView.setLayoutManager(
+                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        );
+        recyclerDayView = findViewById(R.id.recyclerDay);
+        recyclerDayView.setLayoutManager(
+                new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        );
+
 
         AutocompleteSupportFragment autocompleteFragment =
                 (AutocompleteSupportFragment) getSupportFragmentManager()
@@ -107,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("MainActivity", "API Key length: " + BuildConfig.WEATHER_API_KEY.length());
         Log.d("API Key", BuildConfig.WEATHER_API_KEY);
         Log.d("MainActivity", "Fetching weather for: " + location);
-        Call<WeatherResponse> call = api.getCurrentWeather("67f0ab0e5b954496b02160817250908", location);
+        Call<WeatherResponse> call = api.getForecast(BuildConfig.WEATHER_API_KEY, location, 7);
         call.enqueue(new Callback<WeatherResponse>() {
 
             @Override
@@ -117,20 +144,39 @@ public class MainActivity extends AppCompatActivity {
                     long windSpeedRounded = Math.round(weather.current.wind_mph);
                     long windGustRounded = Math.round(weather.current.gust_mph);
 
-                    Log.d("MainActivity", "API Success: Location = " + weather.location.name + ", Temp = " + weather.current.temp_c + ", Wind Speed =" + windSpeedRounded);
+                    Log.d("MainActivity", "API Success: Location = " + weather.location.name + ", Temp = " +
+                            weather.current.temp_c + ", Wind Speed = " + windSpeedRounded + ", Gust = " + weather.current.gust_mph +
+                            ", Todays Max Temp = " + weather.forecast.forecastday.get(0).day.maxtemp_c + "Time: " + weather.forecast.forecastday.get(0).hour.get(0).time);
 
                     runOnUiThread(() -> {
                         locationName.setText(weather.location.name + ", " + weather.location.region);
-                        temperature.setText(weather.current.temp_c + "°C");
-                        windSpeed.setText("Wind Speed: " + windSpeedRounded + " mph");
-                        windGust.setText("Wind Gust: " + windGustRounded + " mph");
-                        windDirection.setText("Wind Direction: " + weather.current.wind_dir);
+                        int temperatureInt = (int) Math.round(weather.current.temp_c);
+                        temperature.setText(temperatureInt + "°");
+                        int feelsLikeInt = (int) Math.round(weather.current.feelslike_c);
+                        feelsLikeTemperature.setText("Feels like " + feelsLikeInt + "°");
+                        windSpeed.setText(windSpeedRounded + " mph");
+//                        windGust.setText("Wind Gust: " + windGustRounded + " mph");
+//                        windDirection.setText("Wind Direction: " + weather.current.wind_dir);
+//                        String hourTimeNotFormatted = weather.forecast.forecastday.get(0).hour.get(0).time;
+//                        String hourTimeFormatted = DateFormatter.formatHour(hourTimeNotFormatted);
+//                        hourTime.setText(hourTimeFormatted);
 
                         float rotation = (weather.current.wind_degree + 180) % 360;
                         windDirectionArrow.setRotation(rotation);
                         // ← This is where you add the Glide code to load the icon
                         String iconUrl = "https:" + weather.current.condition.icon;
                         Glide.with(MainActivity.this).load(iconUrl).into(weatherIcon);
+
+                        List<WeatherResponse.Hour> hours = weather.forecast.forecastday.get(0).hour;
+                        HourlyAdapter hourlyAdapter = new HourlyAdapter(hours);
+                        recyclerHourlyView.setAdapter(hourlyAdapter);
+
+                        List<WeatherResponse.ForecastDay> forecastDays = weather.forecast.forecastday;
+                        DayAdapter dayAdapter = new DayAdapter(forecastDays);
+                        recyclerDayView.setAdapter(dayAdapter);
+                        Log.d("DayAdapter", "Number of forecast days: " + forecastDays.size());
+
+
                     });
                 } else {
                     Log.d("MainActivity", "API response not successful or body is null. Code: " + response.code());

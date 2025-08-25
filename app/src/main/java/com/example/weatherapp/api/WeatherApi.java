@@ -8,10 +8,18 @@ import retrofit2.http.Query;
 
 
 public interface WeatherApi {
-    @GET("v1/current.json")
-    Call<WeatherResponse> getCurrentWeather(
+    @GET("v1/forecast.json")
+    Call<WeatherResponse> getForecast(
             @Query("key") String apiKey,
-            @Query("q") String location
+            @Query("q") String location,
+            @Query("days") int numberOfDays
     );
+
+//    @GET("v1/forecast.json")
+//    Call<WeatherResponse> getHourlyWeather(
+//            @Query("key") String apiKey,
+//            @Query("q") String location,
+//            @Query("days") int numberOfDays
+//    );
 }
 
