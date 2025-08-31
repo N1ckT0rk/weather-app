@@ -28,7 +28,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.weatherapp"
-        minSdk 24
+        minSdk 26
         targetSdk 36
         versionCode 1
         versionName "1.0"
@@ -79,6 +79,8 @@ dependencies {
     androidTestImplementation 'androidx.test:rules:1.5.0'
     testImplementation 'org.robolectric:robolectric:4.10.3'
     implementation 'com.google.android.libraries.places:places:3.5.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.11.0'
+
 
 
 }

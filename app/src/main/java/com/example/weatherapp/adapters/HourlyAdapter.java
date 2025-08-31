@@ -5,22 +5,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.weatherapp.MainActivity;
 import com.example.weatherapp.R;
-import com.example.weatherapp.model.WeatherResponse;
+import com.example.weatherapp.model.GoogleWeatherResponseHourly;
 
 import java.util.List;
 
 public class HourlyAdapter extends RecyclerView.Adapter<HourlyAdapter.HourViewHolder> {
-    private List<WeatherResponse.Hour> hourList;
+    private List<GoogleWeatherResponseHourly.ForecastHour> googleHourList;
 
-    public HourlyAdapter(List<WeatherResponse.Hour> hourList) {
-        this.hourList = hourList;
+    public HourlyAdapter(List<GoogleWeatherResponseHourly.ForecastHour> googleHourList) {
+        this.googleHourList = googleHourList;
     }
 
     @NonNull
@@ -33,19 +31,21 @@ public class HourlyAdapter extends RecyclerView.Adapter<HourlyAdapter.HourViewHo
 
     @Override
     public void onBindViewHolder(@NonNull HourViewHolder holder, int position) {
-        WeatherResponse.Hour hour = hourList.get(position);
+        GoogleWeatherResponseHourly.ForecastHour hour = googleHourList.get(position);
 
-        // Display time and temp_c dynamically (last 5 chars of "YYYY-MM-DD HH:mm")
-        holder.textTime.setText(hour.time.substring(hour.time.length() - 5));
-        holder.textTemp.setText(Math.round(hour.temp_c) + "°");
+        holder.textTime.setText(hour.displayDateTime.hours + ":00");
 
-        String iconUrl = "https:" + hour.condition.icon;
-        Glide.with(holder.imageCondition.getContext()).load(iconUrl).into(holder.imageCondition);
+        holder.textTemp.setText(Math.round(hour.temperature.degrees) + "°");
+
+        String iconUrl = hour.weatherCondition.iconBaseUri + ".png";
+        Glide.with(holder.imageCondition.getContext())
+                .load(iconUrl)
+                .into(holder.imageCondition);
     }
 
     @Override
     public int getItemCount() {
-        return hourList.size();
+        return googleHourList.size();
     }
 
     public static class HourViewHolder extends RecyclerView.ViewHolder {
