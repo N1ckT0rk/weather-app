@@ -1,61 +1,286 @@
 package com.example.weatherapp;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
-import com.example.weatherapp.api.WeatherApi;
-import com.example.weatherapp.model.WeatherResponse;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.example.weatherapp.adapters.DayAdapter;
+import com.example.weatherapp.adapters.HourlyAdapter;
+import com.example.weatherapp.api.GoogleGeocodingApi;
+import com.example.weatherapp.api.GooglePlacesApi;
+import com.example.weatherapp.api.GoogleWeatherApi;
+import com.example.weatherapp.api.RetrofitClient;
+import com.example.weatherapp.model.GeocodeResponse;
+import com.example.weatherapp.model.GoogleWeatherResponseCurrent;
+import com.example.weatherapp.model.GoogleWeatherResponseDaily;
+import com.example.weatherapp.model.GoogleWeatherResponseHourly;
+import com.example.weatherapp.utils.DateFormatter;
+import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
-import com.google.android.gms.common.api.Status;
+
+
 import java.util.Arrays;
-import com.example.weatherapp.utils.LocationUtils;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+
 
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView locationName, temperature, windSpeed, windGust, windDirection;
+    private TextView locationName, temperature, feelsLikeTemperature, windSpeed, hourTime,
+            currentDate, rainChance, rainAmount,
+            windGust,
+            windDirection;
     private ImageView weatherIcon, windDirectionArrow;
 
-    private WeatherApi api;
+    private GoogleWeatherApi googleWeatherApi;
+    private GooglePlacesApi googlePlacesApi;
+    private GoogleGeocodingApi googleGeocodingApi;
 
-    public LocationUtils locationUtils;
+    private RecyclerView recyclerHourlyView;
+    private RecyclerView recyclerDayView;
 
-    public void setApi(WeatherApi api) {
-        this.api = api;
-    }
+
+    public void setApi(GoogleWeatherApi googleWeatherApi) { this.googleWeatherApi = googleWeatherApi;}
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("API Key Check", "API key from BuildConfig: '" + BuildConfig.WEATHER_API_KEY + "'");
         Log.d("API Key Check", "API key length: " + BuildConfig.WEATHER_API_KEY.length());
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), BuildConfig.PLACES_API_KEY);
         }
         super.onCreate(savedInstanceState);
+        Log.d("MainActivity", "Setting Content VIew");
         setContentView(R.layout.activity_main);
+        Log.d("MainActivity", "Content set");
 
+        String weatherApiKey = BuildConfig.WEATHER_API_KEY;
+        String placesApiKey = BuildConfig.PLACES_API_KEY;
+
+        currentDate = findViewById(R.id.currentDate);
         locationName = findViewById(R.id.locationName);
         temperature = findViewById(R.id.temperature);
+        feelsLikeTemperature = findViewById(R.id.feelsLikeTemperature);
+        rainChance = findViewById(R.id.rainChance);
+        rainAmount = findViewById(R.id.rainAmount);
         weatherIcon = findViewById(R.id.weatherIcon);
         windSpeed = findViewById(R.id.windSpeed);
         windGust = findViewById(R.id.windGust);
         windDirection = findViewById(R.id.windDirection);
         windDirectionArrow = findViewById(R.id.windDirectionArrow);
+//        hourTime = findViewById(R.id.hourTime);
+        recyclerHourlyView = findViewById(R.id.recyclerHourly);
+        recyclerHourlyView.setLayoutManager(
+                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        );
+        recyclerDayView = findViewById(R.id.recyclerDay);
+        recyclerDayView.setLayoutManager(
+                new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        );
 
+
+        createAutoCompleteFragment(weatherApiKey, placesApiKey);
+
+        // Setup Retrofit
+        googleGeocodingApi = RetrofitClient.getGeocodingApi();
+        googleWeatherApi = RetrofitClient.getGoogleWeatherApi();
+        googlePlacesApi = RetrofitClient.getGooglePlacesApi();
+
+        // Call Apis
+        fetchCityName(placesApiKey,55.0170, -1.4250);
+        fetchGoogleWeather(weatherApiKey,55.0170, -1.4250);
+    }
+    public void fetchGoogleWeather(String apiKey, double latitude, double longitude) {
+        fetchCurrentWeather(apiKey, latitude, longitude);
+        fetchHourlyWeather(apiKey, latitude, longitude);
+        fetchDailyWeather(apiKey, latitude, longitude);
+    }
+
+    private void fetchDailyWeather(String apiKey, double latitude, double longitude) {
+        Call<GoogleWeatherResponseDaily> googleDailyCall = googleWeatherApi.getDaily(apiKey, latitude, longitude, 7);
+        googleDailyCall.enqueue(new Callback<GoogleWeatherResponseDaily>() {
+
+            @Override
+            public void onResponse(Call<GoogleWeatherResponseDaily> call, Response<GoogleWeatherResponseDaily> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    GoogleWeatherResponseDaily googleWeatherResponseDaily = response.body();
+
+                    Log.d("MainActivity", "Requested 7 days, got " + googleWeatherResponseDaily.forecastDays.size() + " days");
+                    Log.d("MainActivity", "Daily date: " + googleWeatherResponseDaily.forecastDays.get(0).interval.startTime +
+                            " - " + googleWeatherResponseDaily.forecastDays.get(0).interval.endTime);
+
+                    runOnUiThread(() -> {
+                        List<GoogleWeatherResponseDaily.ForecastDay> forecastDays = googleWeatherResponseDaily.forecastDays;
+                        DayAdapter dayAdapter = new DayAdapter(forecastDays);
+                        recyclerDayView.setAdapter(dayAdapter);
+                    });
+
+
+
+                } else {
+                    Log.d("MainActivity", "API response not successful or body is null. Code: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GoogleWeatherResponseDaily> call, Throwable t) {
+                Log.d("MainActivity", "Failed to fetch google weather: " + t.getMessage());
+            }
+        });
+    }
+
+    private void fetchHourlyWeather(String apiKey, double latitude, double longitude) {
+        Call<GoogleWeatherResponseHourly> googleHourlyCall = googleWeatherApi.getHourly(apiKey, latitude, longitude);
+        googleHourlyCall.enqueue(new Callback<GoogleWeatherResponseHourly>() {
+
+            @Override
+            public void onResponse(Call<GoogleWeatherResponseHourly> call, Response<GoogleWeatherResponseHourly> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    GoogleWeatherResponseHourly googleWeatherResponseHourly = response.body();
+                    Log.d("MainActivity", "Hourly timezone: " + googleWeatherResponseHourly.timeZone.id);
+                    Log.d("MainActivity", "Current time hourly: " + googleWeatherResponseHourly.forecastHours.get(0).interval.startTime + " - " +
+                            googleWeatherResponseHourly.forecastHours.get(0).interval.endTime);
+                    Log.d("MainActivity", "Current temp hourly: " + googleWeatherResponseHourly.forecastHours.get(0).temperature.degrees);
+                    runOnUiThread(() -> {
+                        List<GoogleWeatherResponseHourly.ForecastHour> hours = googleWeatherResponseHourly.forecastHours;
+                        HourlyAdapter hourlyAdapter = new HourlyAdapter(hours);
+                        recyclerHourlyView.setAdapter(hourlyAdapter);
+
+                    });
+                } else {
+                    Log.d("MainActivity", "API response not successful or body is null. Code: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GoogleWeatherResponseHourly> call, Throwable t) {
+                Log.d("MainActivity", "Failed to fetch google weather: " + t.getMessage());
+            }
+        });
+    }
+
+    private void fetchCurrentWeather(String apiKey, double latitude, double longitude) {
+        Call<GoogleWeatherResponseCurrent> googleCall = googleWeatherApi.getCurrent(apiKey, latitude, longitude);
+        googleCall.enqueue(new Callback<GoogleWeatherResponseCurrent>() {
+
+            @Override
+            public void onResponse(Call<GoogleWeatherResponseCurrent> call, Response<GoogleWeatherResponseCurrent> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    GoogleWeatherResponseCurrent googleWeatherResponseCurrent = response.body();
+                    Log.d("MainActivity", "Current time: " + googleWeatherResponseCurrent.currentTime);
+                    Log.d("MainActivity", "Current temp: " + googleWeatherResponseCurrent.temperature.degrees);
+                    String formattedDate = DateFormatter.formatDate(googleWeatherResponseCurrent.currentTime);
+
+                    runOnUiThread(() -> {
+                        currentDate.setText(formattedDate);
+                        temperature.setText((int) Math.round(googleWeatherResponseCurrent.temperature.degrees) + "°");
+                        feelsLikeTemperature.setText("Feels like " + (int) Math.round(googleWeatherResponseCurrent.feelsLikeTemperature.degrees) + "°");
+                        rainChance.setText(googleWeatherResponseCurrent.precipitation.probability.percent + "%");
+                        rainAmount.setText((int) googleWeatherResponseCurrent.precipitation.qpf.quantity + "mm");
+                        windSpeed.setText(Math.round(mphConverter(googleWeatherResponseCurrent.wind.speed.value)) + " mph");
+                        windGust.setText(Math.round(mphConverter(googleWeatherResponseCurrent.wind.gust.value)) + " mph");
+//                        windDirection.setText(googleWeatherResponseCurrent.wind.direction.cardinal);
+//                        windDirection.setText("Wind Direction: " + weather.current.wind_dir);
+
+                        float rotation = (googleWeatherResponseCurrent.wind.direction.degrees + 180) % 360;
+                        windDirectionArrow.setRotation(rotation);
+
+                        // Glide code to load the icon
+                        Log.d("MainActivity", "icon url: " + googleWeatherResponseCurrent.weatherCondition.iconBaseUri);
+                        String iconUrl = googleWeatherResponseCurrent.weatherCondition.iconBaseUri + ".png";
+
+                        Glide.with(MainActivity.this)
+                                .load(iconUrl)
+                                .error(R.drawable.ic_arrow) // fallback drawable
+                                .listener(new RequestListener<Drawable>() {
+
+                                    @Override
+                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                        Log.e("MainActivity", "Failed to load icon", e);
+                                        return false;
+                                    }
+
+                                    @Override
+                                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                        Log.d("MainActivity", "Icon loaded successfully");
+                                        return false;
+                                    }
+                                })
+                                .into(weatherIcon);
+                    });
+                }
+                else {
+                    Log.d("MainActivity", "API response not successful or body is null. Code: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GoogleWeatherResponseCurrent> call, Throwable t) {
+                Log.d("MainActivity", "Failed to fetch google weather: " + t.getMessage());
+            }
+        });
+    }
+
+    private void fetchCityName(String apiKey, double latitude, double longitude) {
+        String latLng = latitude + "," + longitude;
+
+        Call<GeocodeResponse> call = googleGeocodingApi.getCityFromCoordinates(
+                latLng,
+                apiKey
+        );
+
+        call.enqueue(new Callback<GeocodeResponse>() {
+            @Override
+            public void onResponse(Call<GeocodeResponse> call, Response<GeocodeResponse> response) {
+                if (response.isSuccessful() && response.body() != null && !response.body().results.isEmpty()) {
+                    for (GeocodeResponse.Result result : response.body().results) {
+                        for (GeocodeResponse.AddressComponent component : result.address_components) {
+                            if (component.types.contains("locality")) {
+                                String cityName = component.long_name;
+                                Log.d("MainActivity", "City: " + cityName);
+
+                                runOnUiThread(() -> locationName.setText(cityName));
+                                return;
+                            }
+                        }
+                    }
+
+                    // fallback if "locality" not found
+                    String fallback = response.body().results.get(0).formatted_address;
+                    runOnUiThread(() -> locationName.setText(fallback));
+                } else {
+                    Log.e("MainActivity", "No results from geocoding API");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GeocodeResponse> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
+
+    }
+    private void createAutoCompleteFragment(String weatherApiKey, String placesApiKey) {
         AutocompleteSupportFragment autocompleteFragment =
                 (AutocompleteSupportFragment) getSupportFragmentManager()
                         .findFragmentById(R.id.autocompleteFragment);
@@ -71,15 +296,11 @@ public class MainActivity extends AppCompatActivity {
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(@NonNull Place place) {
-                String location = locationUtils.buildLocationString(place);
-                if (!location.isEmpty()) {
-                    fetchWeather(location);
-                } else {
-                    // fallback if no address components, use place name
-                    String placeName = place.getName();
-                    if (placeName != null && !placeName.isEmpty()) {
-                        fetchWeather(placeName);
-                    }
+                if (place.getLatLng() != null) {
+                    double latitude = place.getLatLng().latitude;
+                    double longitude = place.getLatLng().longitude;
+                    fetchGoogleWeather(weatherApiKey, latitude, longitude);
+                    fetchCityName(placesApiKey, latitude, longitude);
                 }
             }
 
@@ -88,60 +309,9 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("Places", "Error: " + status);
             }
         });
-
-
-        // Setup Retrofit
-        if (api == null) {
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("https://api.weatherapi.com/")
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-
-            api = retrofit.create(WeatherApi.class);
-        }
-        // Fetch weather data for Tynemouth
-        fetchWeather("Tynemouth");
     }
 
-    public void fetchWeather(String location) {
-        Log.d("MainActivity", "API Key length: " + BuildConfig.WEATHER_API_KEY.length());
-        Log.d("API Key", BuildConfig.WEATHER_API_KEY);
-        Log.d("MainActivity", "Fetching weather for: " + location);
-        Call<WeatherResponse> call = api.getCurrentWeather("67f0ab0e5b954496b02160817250908", location);
-        call.enqueue(new Callback<WeatherResponse>() {
-
-            @Override
-            public void onResponse(Call<WeatherResponse> call, Response<WeatherResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    WeatherResponse weather = response.body();
-                    long windSpeedRounded = Math.round(weather.current.wind_mph);
-                    long windGustRounded = Math.round(weather.current.gust_mph);
-
-                    Log.d("MainActivity", "API Success: Location = " + weather.location.name + ", Temp = " + weather.current.temp_c + ", Wind Speed =" + windSpeedRounded);
-
-                    runOnUiThread(() -> {
-                        locationName.setText(weather.location.name + ", " + weather.location.region);
-                        temperature.setText(weather.current.temp_c + "°C");
-                        windSpeed.setText("Wind Speed: " + windSpeedRounded + " mph");
-                        windGust.setText("Wind Gust: " + windGustRounded + " mph");
-                        windDirection.setText("Wind Direction: " + weather.current.wind_dir);
-
-                        float rotation = (weather.current.wind_degree + 180) % 360;
-                        windDirectionArrow.setRotation(rotation);
-                        // ← This is where you add the Glide code to load the icon
-                        String iconUrl = "https:" + weather.current.condition.icon;
-                        Glide.with(MainActivity.this).load(iconUrl).into(weatherIcon);
-                    });
-                } else {
-                    Log.d("MainActivity", "API response not successful or body is null. Code: " + response.code());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<WeatherResponse> call, Throwable t) {
-                // Handle failure - show error or retry
-                Log.e("MainActivity", "API call failed: " + t.getMessage());
-            }
-        });
+    private double mphConverter(double kph){
+        return kph * 0.621371;
     }
 }
