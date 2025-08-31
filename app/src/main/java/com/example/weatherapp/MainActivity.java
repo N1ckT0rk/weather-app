@@ -1,5 +1,7 @@
 package com.example.weatherapp;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,6 +33,8 @@ import com.example.weatherapp.model.GoogleWeatherResponseHourly;
 import com.example.weatherapp.utils.DateFormatter;
 import com.example.weatherapp.utils.LocationUtils;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
@@ -59,9 +64,71 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerHourlyView;
     private RecyclerView recyclerDayView;
+    private FusedLocationProviderClient fusedLocationClient;
 
+    private double defaultLatitude;
+    private double defaultLongitude;
 
     public void setApi(GoogleWeatherApi googleWeatherApi) { this.googleWeatherApi = googleWeatherApi;}
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+
+    private void checkLocationPermissionAndFetch() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Request permission
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            // Permission already granted
+            fetchDefaultLocationAndWeather();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                fetchDefaultLocationAndWeather();
+            } else {
+                // Permission denied — fallback to default coordinates
+                defaultLatitude = 55.0170;
+                defaultLongitude = -1.4250;
+                fetchGoogleWeather(BuildConfig.WEATHER_API_KEY, defaultLatitude, defaultLongitude);
+                fetchCityName(BuildConfig.PLACES_API_KEY, defaultLatitude, defaultLongitude);
+            }
+        }
+    }
+
+
+    private void fetchDefaultLocationAndWeather() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+            if (location != null) {
+                defaultLatitude = location.getLatitude();
+                defaultLongitude = location.getLongitude();
+            } else {
+                // fallback to a fixed location if location is unavailable
+                defaultLatitude = 58.0170;
+                defaultLongitude = -1.4250;
+            }
+            // Fetch weather and city for this default location
+            fetchCityName(BuildConfig.PLACES_API_KEY, defaultLatitude, defaultLongitude);
+            fetchGoogleWeather(BuildConfig.WEATHER_API_KEY, defaultLatitude, defaultLongitude);
+        });
+    }
 
 
     @Override
@@ -74,6 +141,8 @@ public class MainActivity extends AppCompatActivity {
         Log.d("MainActivity", "Setting Content VIew");
         setContentView(R.layout.activity_main);
         Log.d("MainActivity", "Content set");
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
 
         String weatherApiKey = BuildConfig.WEATHER_API_KEY;
         String placesApiKey = BuildConfig.PLACES_API_KEY;
@@ -108,9 +177,12 @@ public class MainActivity extends AppCompatActivity {
         googlePlacesApi = RetrofitClient.getGooglePlacesApi();
 
         // Call Apis
-        fetchCityName(placesApiKey,55.0170, -1.4250);
-        fetchGoogleWeather(weatherApiKey,55.0170, -1.4250);
+        checkLocationPermissionAndFetch();
+//        fetchDefaultLocationAndWeather();
+//        fetchCityName(placesApiKey,55.0170, -1.4250);
+//        fetchGoogleWeather(weatherApiKey,55.0170, -1.4250);
     }
+
     public void fetchGoogleWeather(String apiKey, double latitude, double longitude) {
         fetchCurrentWeather(apiKey, latitude, longitude);
         fetchHourlyWeather(apiKey, latitude, longitude);
