@@ -9,7 +9,7 @@
         android:id="@+id/tvDailyHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="7-Day Forecast"
+        android:text="5-Day Forecast"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginBottom="4dp"/>

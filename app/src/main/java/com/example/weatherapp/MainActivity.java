@@ -28,6 +28,7 @@ import com.example.weatherapp.model.GoogleWeatherResponseCurrent;
 import com.example.weatherapp.model.GoogleWeatherResponseDaily;
 import com.example.weatherapp.model.GoogleWeatherResponseHourly;
 import com.example.weatherapp.utils.DateFormatter;
+import com.example.weatherapp.utils.LocationUtils;
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -253,13 +254,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<GeocodeResponse> call, Response<GeocodeResponse> response) {
                 if (response.isSuccessful() && response.body() != null && !response.body().results.isEmpty()) {
+                    String displayName = LocationUtils.buildLocationString(response.body().results.get(0));
+
                     for (GeocodeResponse.Result result : response.body().results) {
                         for (GeocodeResponse.AddressComponent component : result.address_components) {
                             if (component.types.contains("locality")) {
                                 String cityName = component.long_name;
                                 Log.d("MainActivity", "City: " + cityName);
 
-                                runOnUiThread(() -> locationName.setText(cityName));
+                                runOnUiThread(() -> locationName.setText(cityName + displayName));
                                 return;
                             }
                         }
