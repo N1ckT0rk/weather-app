@@ -50,7 +50,7 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
         // Wind: speed / gust in mph
         double speedMph = forecastDay.daytimeForecast.wind.speed.value * 0.621371;
         double gustMph = forecastDay.daytimeForecast.wind.gust.value * 0.621371;
-        String windText = Math.round(speedMph) + " / " + Math.round(gustMph);
+        String windText = Math.round(speedMph) + "mph / " + Math.round(gustMph) + "mph";
         holder.wind.setText(windText);
 
         // Rotate arrow
