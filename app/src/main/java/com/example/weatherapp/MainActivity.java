@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -104,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
     private void fetchDefaultLocationAndWeather() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -167,6 +169,15 @@ public class MainActivity extends AppCompatActivity {
         recyclerDayView.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         );
+
+        SwipeRefreshLayout swipeRefresh = findViewById(R.id.swipeRefresh);
+        swipeRefresh.setOnRefreshListener(() -> {
+            // Call your refresh logic here (e.g., reload weather data)
+            checkLocationPermissionAndFetch();
+
+            // Stop refreshing once done
+            swipeRefresh.setRefreshing(false);
+        });
 
 
         createAutoCompleteFragment(weatherApiKey, placesApiKey);

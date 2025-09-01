@@ -1,247 +1,503 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/swipeRefresh"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="@drawable/bg_gradient"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:background="@drawable/bg_gradient"
+        android:padding="16dp">
 
-        <!-- Autocomplete Fragment wrapped in card -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="2dp"
-            android:background="@drawable/card_bg"
-            android:orientation="vertical"
-            android:layout_marginTop="48dp"
-            android:layout_marginBottom="2dp">
+            android:orientation="vertical">
 
-            <fragment
-                android:id="@+id/autocompleteFragment"
-                android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+            <!-- Autocomplete Fragment wrapped in card -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
-
-        <!-- Header -->
-        <TextView
-            android:id="@+id/locationName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="#08304A"
-            android:layout_marginTop="16dp"/>
-
-        <TextView
-            android:id="@+id/currentDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="14sp"
-            android:textColor="#264B63"
-            android:layout_marginBottom="12dp"/>
-
-        <!-- Current Weather Card -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/card_bg"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:layout_marginBottom="12dp">
-
-            <ImageView
-                android:id="@+id/weatherIcon"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_marginEnd="16dp"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter"
-                android:contentDescription="Weather Icon" />
-
-            <LinearLayout
-                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/temperature"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textColor="#082C44"
-                    android:textSize="56sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/feelsLikeTemperature"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textColor="#355B72"
-                    android:textSize="16sp" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Weather Details Row -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/card_bg"
-            android:orientation="horizontal"
-            android:weightSum="3"
-            android:padding="12dp"
-            android:layout_marginBottom="16dp">
-
-            <!-- Humidity -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:padding="2dp"
+                android:background="@drawable/card_bg"
                 android:orientation="vertical"
-                android:gravity="center">
+                android:layout_marginTop="48dp"
+                android:layout_marginBottom="2dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="💧"
-                    android:textSize="22sp"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Rain"
-                    android:textSize="12sp"
-                    android:textStyle="bold"/>
-                <TextView
-                    android:id="@+id/rainChance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
-                <TextView
-                    android:id="@+id/rainAmount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
+                <fragment
+                    android:id="@+id/autocompleteFragment"
+                    android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
             </LinearLayout>
 
-            <!-- Wind -->
-            <LinearLayout
-                android:layout_width="0dp"
+            <!-- Header -->
+            <TextView
+                android:id="@+id/locationName"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
+                android:text=""
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#08304A"
+                android:layout_marginTop="16dp"/>
+
+            <TextView
+                android:id="@+id/currentDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="14sp"
+                android:textColor="#264B63"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Current Weather Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card_bg"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:layout_marginBottom="12dp">
 
                 <ImageView
-                    android:id="@+id/windDirectionArrow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_arrow"
-                    android:contentDescription="Wind Direction Arrow" />
+                    android:id="@+id/weatherIcon"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="16dp"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="Weather Icon" />
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="WIND"
-                    android:textSize="12sp"
-                    android:textStyle="bold"/>
-                <TextView
-                    android:id="@+id/windSpeed"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
-                <TextView
-                    android:id="@+id/windGust"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
-                <TextView
-                    android:id="@+id/windDirection"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/temperature"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textColor="#082C44"
+                        android:textSize="56sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/feelsLikeTemperature"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textColor="#355B72"
+                        android:textSize="16sp" />
+                </LinearLayout>
             </LinearLayout>
 
-            <!-- UV -->
+            <!-- Weather Details Row -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
+                android:background="@drawable/card_bg"
+                android:orientation="horizontal"
+                android:weightSum="3"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <!-- Humidity -->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="🔆"
-                    android:textSize="22sp"/>
-                <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="💧"
+                        android:textSize="22sp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Rain"
+                        android:textSize="12sp"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:id="@+id/rainChance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:id="@+id/rainAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <!-- Wind -->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="UV INDEX"
-                    android:textSize="12sp"
-                    android:textStyle="bold"/>
-                <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:id="@+id/windDirectionArrow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_arrow"
+                        android:contentDescription="Wind Direction Arrow" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="WIND"
+                        android:textSize="12sp"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:id="@+id/windSpeed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:id="@+id/windGust"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:id="@+id/windDirection"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <!-- UV -->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="5"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🔆"
+                        android:textSize="22sp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="UV INDEX"
+                        android:textSize="12sp"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="5"
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
             </LinearLayout>
+
+            <!-- Hourly Forecast -->
+            <include layout="@layout/hourly_forecast"/>
+            <include layout="@layout/daily_forecast"/>
+
+
+            <!-- Bottom Navigation -->
+            <!--        <LinearLayout-->
+            <!--            android:layout_width="match_parent"-->
+            <!--            android:layout_height="wrap_content"-->
+            <!--            android:orientation="horizontal"-->
+            <!--            android:gravity="center"-->
+            <!--            android:layout_marginBottom="16dp">-->
+
+            <!--            <TextView-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:text="🏠 Home"-->
+            <!--                android:layout_margin="16dp"/>-->
+            <!--            <TextView-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:text="🗺️ Radar"-->
+            <!--                android:layout_margin="16dp"/>-->
+            <!--            <TextView-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:text="⚙️ Settings"-->
+            <!--                android:layout_margin="16dp"/>-->
+            <!--        </LinearLayout>-->
+
         </LinearLayout>
-
-        <!-- Hourly Forecast -->
-        <include layout="@layout/hourly_forecast"/>
-        <include layout="@layout/daily_forecast"/>
+    </androidx.core.widget.NestedScrollView>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 
-        <!-- Bottom Navigation -->
+
+
+<!--    <?xml version="1.0" encoding="utf-8"?>-->
+<!--<androidx.core.widget.NestedScrollView-->
+<!--    xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent"-->
+<!--    android:fillViewport="true"-->
+<!--    android:background="@drawable/bg_gradient"-->
+<!--    android:padding="16dp">-->
+
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="vertical">-->
+
+<!--        &lt;!&ndash; Autocomplete Fragment wrapped in card &ndash;&gt;-->
 <!--        <LinearLayout-->
 <!--            android:layout_width="match_parent"-->
 <!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="horizontal"-->
-<!--            android:gravity="center"-->
-<!--            android:layout_marginBottom="16dp">-->
+<!--            android:padding="2dp"-->
+<!--            android:background="@drawable/card_bg"-->
+<!--            android:orientation="vertical"-->
+<!--            android:layout_marginTop="48dp"-->
+<!--            android:layout_marginBottom="2dp">-->
 
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="🏠 Home"-->
-<!--                android:layout_margin="16dp"/>-->
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="🗺️ Radar"-->
-<!--                android:layout_margin="16dp"/>-->
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="⚙️ Settings"-->
-<!--                android:layout_margin="16dp"/>-->
+<!--            <fragment-->
+<!--                android:id="@+id/autocompleteFragment"-->
+<!--                android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"/>-->
 <!--        </LinearLayout>-->
 
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+<!--        &lt;!&ndash; Header &ndash;&gt;-->
+<!--        <TextView-->
+<!--            android:id="@+id/locationName"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text=""-->
+<!--            android:textSize="22sp"-->
+<!--            android:textStyle="bold"-->
+<!--            android:textColor="#08304A"-->
+<!--            android:layout_marginTop="16dp"/>-->
+
+<!--        <TextView-->
+<!--            android:id="@+id/currentDate"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text=""-->
+<!--            android:textSize="14sp"-->
+<!--            android:textColor="#264B63"-->
+<!--            android:layout_marginBottom="12dp"/>-->
+
+<!--        &lt;!&ndash; Current Weather Card &ndash;&gt;-->
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="@drawable/card_bg"-->
+<!--            android:gravity="center_vertical"-->
+<!--            android:orientation="horizontal"-->
+<!--            android:padding="16dp"-->
+<!--            android:layout_marginBottom="12dp">-->
+
+<!--            <ImageView-->
+<!--                android:id="@+id/weatherIcon"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_weight="1"-->
+<!--                android:layout_marginEnd="16dp"-->
+<!--                android:adjustViewBounds="true"-->
+<!--                android:scaleType="fitCenter"-->
+<!--                android:contentDescription="Weather Icon" />-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_weight="1"-->
+<!--                android:orientation="vertical">-->
+
+<!--                <TextView-->
+<!--                    android:id="@+id/temperature"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text=""-->
+<!--                    android:textColor="#082C44"-->
+<!--                    android:textSize="56sp"-->
+<!--                    android:textStyle="bold" />-->
+
+<!--                <TextView-->
+<!--                    android:id="@+id/feelsLikeTemperature"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text=""-->
+<!--                    android:textColor="#355B72"-->
+<!--                    android:textSize="16sp" />-->
+<!--            </LinearLayout>-->
+<!--        </LinearLayout>-->
+
+<!--        &lt;!&ndash; Weather Details Row &ndash;&gt;-->
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="@drawable/card_bg"-->
+<!--            android:orientation="horizontal"-->
+<!--            android:weightSum="3"-->
+<!--            android:padding="12dp"-->
+<!--            android:layout_marginBottom="16dp">-->
+
+<!--            &lt;!&ndash; Humidity &ndash;&gt;-->
+<!--            <LinearLayout-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_weight="1"-->
+<!--                android:orientation="vertical"-->
+<!--                android:gravity="center">-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="💧"-->
+<!--                    android:textSize="22sp"/>-->
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="Rain"-->
+<!--                    android:textSize="12sp"-->
+<!--                    android:textStyle="bold"/>-->
+<!--                <TextView-->
+<!--                    android:id="@+id/rainChance"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text=""-->
+<!--                    android:textSize="16sp"-->
+<!--                    android:textStyle="bold"/>-->
+<!--                <TextView-->
+<!--                    android:id="@+id/rainAmount"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text=""-->
+<!--                    android:textSize="16sp"-->
+<!--                    android:textStyle="bold"/>-->
+<!--            </LinearLayout>-->
+
+<!--            &lt;!&ndash; Wind &ndash;&gt;-->
+<!--            <LinearLayout-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_weight="1"-->
+<!--                android:orientation="vertical"-->
+<!--                android:gravity="center">-->
+
+<!--                <ImageView-->
+<!--                    android:id="@+id/windDirectionArrow"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:src="@drawable/ic_arrow"-->
+<!--                    android:contentDescription="Wind Direction Arrow" />-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="WIND"-->
+<!--                    android:textSize="12sp"-->
+<!--                    android:textStyle="bold"/>-->
+<!--                <TextView-->
+<!--                    android:id="@+id/windSpeed"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text=""-->
+<!--                    android:textSize="16sp"-->
+<!--                    android:textStyle="bold"/>-->
+<!--                <TextView-->
+<!--                    android:id="@+id/windGust"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text=""-->
+<!--                    android:textSize="16sp"-->
+<!--                    android:textStyle="bold"/>-->
+<!--                <TextView-->
+<!--                    android:id="@+id/windDirection"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text=""-->
+<!--                    android:textSize="16sp"-->
+<!--                    android:textStyle="bold"/>-->
+<!--            </LinearLayout>-->
+
+<!--            &lt;!&ndash; UV &ndash;&gt;-->
+<!--            <LinearLayout-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_weight="1"-->
+<!--                android:orientation="vertical"-->
+<!--                android:gravity="center">-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="🔆"-->
+<!--                    android:textSize="22sp"/>-->
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="UV INDEX"-->
+<!--                    android:textSize="12sp"-->
+<!--                    android:textStyle="bold"/>-->
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="5"-->
+<!--                    android:textSize="16sp"-->
+<!--                    android:textStyle="bold"/>-->
+<!--            </LinearLayout>-->
+<!--        </LinearLayout>-->
+
+<!--        &lt;!&ndash; Hourly Forecast &ndash;&gt;-->
+<!--        <include layout="@layout/hourly_forecast"/>-->
+<!--        <include layout="@layout/daily_forecast"/>-->
+
+
+<!--        &lt;!&ndash; Bottom Navigation &ndash;&gt;-->
+<!--&lt;!&ndash;        <LinearLayout&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_width="match_parent"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:orientation="horizontal"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:gravity="center"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_marginBottom="16dp">&ndash;&gt;-->
+
+<!--&lt;!&ndash;            <TextView&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_width="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:text="🏠 Home"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_margin="16dp"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            <TextView&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_width="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:text="🗺️ Radar"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_margin="16dp"/>&ndash;&gt;-->
+<!--&lt;!&ndash;            <TextView&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_width="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:text="⚙️ Settings"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_margin="16dp"/>&ndash;&gt;-->
+<!--&lt;!&ndash;        </LinearLayout>&ndash;&gt;-->
+
+<!--    </LinearLayout>-->
+<!--</androidx.core.widget.NestedScrollView>-->
 

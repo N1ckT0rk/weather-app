@@ -21,6 +21,6 @@
         android:clipToPadding="false"
         android:nestedScrollingEnabled="false"
         android:scrollbars="none"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"/>
+        android:paddingStart="2dp"
+        android:paddingEnd="2dp"/>
 </LinearLayout>
