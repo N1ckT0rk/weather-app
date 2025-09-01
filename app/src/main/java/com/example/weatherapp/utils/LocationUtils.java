@@ -1,45 +1,59 @@
 package com.example.weatherapp.utils;
 
-import com.google.android.libraries.places.api.model.AddressComponent;
-import com.google.android.libraries.places.api.model.Place;
+import com.example.weatherapp.model.GeocodeResponse;
 
 import java.util.List;
 
 public class LocationUtils {
-    public static String buildLocationString(Place place) {
-        String city = "";
-        String region = "";
-        String country = "";
 
-        if (place.getAddressComponents() != null) {
-            for (AddressComponent component : place.getAddressComponents().asList()) {
-                List<String> types = component.getTypes();
-                if (types.contains("locality")) {
-                    city = component.getName();
-                } else if (types.contains("administrative_area_level_2")) {
-                    region = component.getName();  // prefer this as the county/district
-                } else if (types.contains("administrative_area_level_1")) {
-                    if (region.isEmpty()) { // fallback if level_2 not set
-                        region = component.getName();
-                    }
-                }
+    public static String buildLocationString(GeocodeResponse.Result result) {
+        String regionName = null;
 
+        for (GeocodeResponse.AddressComponent component : result.address_components) {
+            List<String> types = component.types;
+            if (types.contains("administrative_area_level_2")) {
+                regionName = component.long_name;
+            } else if (types.contains("administrative_area_level_1") && regionName == null) {
+                regionName = component.long_name;
             }
         }
 
-        // Build a combined location string
-        StringBuilder locationBuilder = new StringBuilder();
-        if (!city.isEmpty()) {
-            locationBuilder.append(city);
-        }
-        if (!region.isEmpty()) {
-            if (locationBuilder.length() > 0) locationBuilder.append(", ");
-            locationBuilder.append(region);
-        }
-        if (!country.isEmpty()) {
-            if (locationBuilder.length() > 0) locationBuilder.append(", ");
-            locationBuilder.append(country);
-        }
-        return locationBuilder.toString();
+
+            if (regionName != null) {
+                return ", " + regionName;
+            }
+
+        // fallback if no locality/postal_town
+        return result.formatted_address;
     }
+
 }
+
+
+
+//        for (GeocodeResponse.Result result : results) {
+//            String cityName = null;
+//            String regionName = null;
+//
+//            for (GeocodeResponse.AddressComponent component : result.address_components) {
+//                if (component.types.contains("postal_town") || component.types.contains("locality") || component.types.contains("sublocality_level_1")) {
+//                    cityName = component.long_name;
+//                } else if (component.types.contains("administrative_area_level_2")) {
+//                    regionName = component.long_name;
+//                } else if (component.types.contains("administrative_area_level_1") && regionName == null) {
+//                    regionName = component.long_name;
+//                }
+//            }
+//
+//            if (cityName != null) {
+//                String displayName = cityName;
+//                if (regionName != null) displayName += ", " + regionName;
+//                return displayName;
+//            }
+//        }
+//
+//        // fallback if no city found
+//        return results.get(0).formatted_address;
+//    }
+//
+//}
