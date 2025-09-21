@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView locationName, temperature, feelsLikeTemperature, windSpeed, hourTime,
             currentDate, rainChance, rainAmount,
             windGust,
+            uvIndex,
             windDirection;
     private ImageView weatherIcon, windDirectionArrow;
 
@@ -75,13 +76,18 @@ public class MainActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
 
     private void checkLocationPermissionAndFetch() {
+        Log.d("MainActivity", "checkLocationPermissionAndFetch() called");
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
+            Log.d("MainActivity", "Location permission NOT granted. Requesting...");
+
             // Request permission
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     LOCATION_PERMISSION_REQUEST_CODE);
         } else {
+            Log.d("MainActivity", "Location permission already granted.");
             // Permission already granted
             fetchDefaultLocationAndWeather();
         }
@@ -91,13 +97,18 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        Log.d("MainActivity", "onRequestPermissionsResult() called");
+
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d("MainActivity", "Permission GRANTED. Fetching location...");
                 fetchDefaultLocationAndWeather();
             } else {
+                Log.d("MainActivity", "Permission DENIED. Falling back to London coords.");
+
                 // Permission denied — fallback to default coordinates
-                defaultLatitude = 55.0170;
-                defaultLongitude = -1.4250;
+                defaultLatitude = 51.5;
+                defaultLongitude = 0.1;
                 fetchGoogleWeather(BuildConfig.WEATHER_API_KEY, defaultLatitude, defaultLongitude);
                 fetchCityName(BuildConfig.PLACES_API_KEY, defaultLatitude, defaultLongitude);
             }
@@ -107,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void fetchDefaultLocationAndWeather() {
+        Log.d("MainActivity", "fetchDefaultLocationAndWeather() called");
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -117,16 +130,27 @@ public class MainActivity extends AppCompatActivity {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
+        Log.d("MainActivity", "Calling fusedLocationClient.getLastLocation()...");
         fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
             if (location != null) {
-                defaultLatitude = location.getLatitude();
-                defaultLongitude = location.getLongitude();
+                double rawLat = location.getLatitude();
+                double rawLng = location.getLongitude();
+
+                // Round to 4 decimal places
+                defaultLatitude = Math.round(rawLat * 10000.0) / 10000.0;
+                defaultLongitude = Math.round(rawLng * 10000.0) / 10000.0;
+                Log.d("MainActivity", "Got location from FusedLocationClient");
+                Log.d("MainActivity", "Latitude: " + defaultLatitude);
+                Log.d("MainActivity", "Longitude: " + defaultLongitude);
             } else {
-                // fallback to a fixed location if location is unavailable
-                defaultLatitude = 58.0170;
-                defaultLongitude = -1.4250;
+                Log.w("MainActivity", "Location was NULL. Falling back to London coords.");
+
+                // fallback to a fixed location London if location is unavailable
+                defaultLatitude = 51.5;
+                defaultLongitude = 0.1;
             }
             // Fetch weather and city for this default location
+            Log.d("MainActivity", "Fetching weather and city name for lat=" + defaultLatitude + ", lon=" + defaultLongitude);
             fetchCityName(BuildConfig.PLACES_API_KEY, defaultLatitude, defaultLongitude);
             fetchGoogleWeather(BuildConfig.WEATHER_API_KEY, defaultLatitude, defaultLongitude);
         });
@@ -136,6 +160,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("API Key Check", "API key length: " + BuildConfig.WEATHER_API_KEY.length());
+        Log.d("API Weather Key", BuildConfig.WEATHER_API_KEY);
+
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), BuildConfig.PLACES_API_KEY);
         }
@@ -160,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
         windGust = findViewById(R.id.windGust);
         windDirection = findViewById(R.id.windDirection);
         windDirectionArrow = findViewById(R.id.windDirectionArrow);
+        uvIndex = findViewById(R.id.uvIndex);
 //        hourTime = findViewById(R.id.hourTime);
         recyclerHourlyView = findViewById(R.id.recyclerHourly);
         recyclerHourlyView.setLayoutManager(
@@ -264,7 +291,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fetchCurrentWeather(String apiKey, double latitude, double longitude) {
+
         Call<GoogleWeatherResponseCurrent> googleCall = googleWeatherApi.getCurrent(apiKey, latitude, longitude);
+        Log.d("MainActivity", "Request URL: " + googleCall.request().url());
+
         googleCall.enqueue(new Callback<GoogleWeatherResponseCurrent>() {
 
             @Override
@@ -273,6 +303,8 @@ public class MainActivity extends AppCompatActivity {
                     GoogleWeatherResponseCurrent googleWeatherResponseCurrent = response.body();
                     Log.d("MainActivity", "Current time: " + googleWeatherResponseCurrent.currentTime);
                     Log.d("MainActivity", "Current temp: " + googleWeatherResponseCurrent.temperature.degrees);
+                    Log.d("MainActivity", "UV: " + googleWeatherResponseCurrent.uvIndex);
+
                     String formattedDate = DateFormatter.formatDate(googleWeatherResponseCurrent.currentTime);
 
                     runOnUiThread(() -> {
@@ -283,6 +315,7 @@ public class MainActivity extends AppCompatActivity {
                         rainAmount.setText((int) googleWeatherResponseCurrent.precipitation.qpf.quantity + "mm");
                         windSpeed.setText(Math.round(mphConverter(googleWeatherResponseCurrent.wind.speed.value)) + " mph");
                         windGust.setText(Math.round(mphConverter(googleWeatherResponseCurrent.wind.gust.value)) + " mph");
+                        uvIndex.setText(String.valueOf(googleWeatherResponseCurrent.uvIndex));
 //                        windDirection.setText(googleWeatherResponseCurrent.wind.direction.cardinal);
 //                        windDirection.setText("Wind Direction: " + weather.current.wind_dir);
 
